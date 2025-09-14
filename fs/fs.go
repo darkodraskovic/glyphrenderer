@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -8,10 +9,15 @@ import (
 // ProjectRoot returns the root directory of the project
 // by walking up one level from the executable.
 func ProjectRoot() string {
-	ex, err := os.Executable()
-	if err != nil {
-		panic(err)
+	wd, _ := os.Getwd()
+	for {
+		if _, err := os.Stat(filepath.Join(wd, "go.mod")); err == nil {
+			return wd
+		}
+		parent := filepath.Dir(wd)
+		if parent == wd {
+			log.Fatal("project root not found")
+		}
+		wd = parent
 	}
-	exPath := filepath.Dir(ex)
-	return filepath.Join(exPath, "../..")
 }
