@@ -1,0 +1,14 @@
+# macOS junk
+.DS_Store
+
+# Go build outputs
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Debug files
+__debug_*

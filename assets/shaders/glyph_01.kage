@@ -1,0 +1,28 @@
+//kage:unit pixels
+package main
+
+// Uniforms
+var Cols, Rows float
+var GlyphW, GlyphH float
+
+func Fragment(dstPos vec4, srcPos vec2) vec4 {
+	dstPos -= vec4(imageDstOrigin(), 0, 0)
+
+	// Sample rune buffer (already scaled to grid)
+	runeData := imageSrc1At(srcPos)
+	glyphIdx := int(runeData.r * 255.0)
+
+	// Local pixel inside the glyph cell
+	localX := dstPos.x - floor(dstPos.x/GlyphW)*GlyphW
+	localY := dstPos.y - floor(dstPos.y/GlyphH)*GlyphH
+
+	// Atlas coordinates: row-packed, full screen
+	glyphX := float(glyphIdx)*GlyphW + localX
+	glyphY := localY
+
+	// atlasSize := imageSrc0Size()
+	uvAtlas := vec2(glyphX, glyphY)
+
+	// Fetch from glyph atlas
+	return imageSrc0At(uvAtlas)
+}

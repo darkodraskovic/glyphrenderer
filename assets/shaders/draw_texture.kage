@@ -1,0 +1,7 @@
+//kage:unit pixels
+package main
+
+func Fragment(dstPos vec4, srcPos vec2, col vec4) vec4 {
+	// Fetch from glyph atlas
+	return imageSrc0At(srcPos)
+}

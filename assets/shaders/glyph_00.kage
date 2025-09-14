@@ -1,0 +1,68 @@
+//kage:unit pixels
+
+package main
+
+// imageSrc0 = dummy (ignored, only to satisfy size requirement)
+// imageSrc1 = glyph atlas
+
+const Cols = 16.0
+const Rows = 8.0
+const TileW = 8.0
+const TileH = 8.0
+const MAX_CELLS = 128 // must match the game config
+
+const VEC2_COUNT = MAX_CELLS * 2
+const VEC4_COUNT = MAX_CELLS * 4
+
+var UVs [VEC2_COUNT]float // (u,v)
+var FGs [VEC4_COUNT]float // (r,g,b,a)
+var BGs [VEC4_COUNT]float // (r,g,b,a)
+
+func getVec2(arr [VEC2_COUNT]float, idx int) vec2 {
+	base := idx * 2
+	return vec2(arr[base+0], arr[base+1])
+}
+
+func getVec4(arr [VEC4_COUNT]float, idx int) vec4 {
+	base := idx * 4
+	return vec4(
+		arr[base+0],
+		arr[base+1],
+		arr[base+2],
+		arr[base+3],
+	)
+}
+
+func Fragment(pos vec4) vec4 {
+    cellX := int(pos.x / TileW)
+    cellY := int(pos.y / TileH)
+    idx := cellY*int(Cols) + cellX
+
+    if idx < 0 || idx >= MAX_CELLS {
+        return vec4(0.0)
+    }
+
+    // position inside the tile
+    localX := pos.x - float(cellX)*TileW
+    localY := pos.y - float(cellY)*TileH
+
+    uvs := getVec2(UVs, idx)
+
+    // atlas pixel coords
+    u := uvs.x + localX
+    v := uvs.y + localY
+
+    glyph := imageSrc0At(vec2(u, v)) // sample atlas
+
+    fg := getVec4(FGs, idx)
+    bg := getVec4(BGs, idx)
+
+    // ---- DEBUG MODES ----
+    // return glyph;              // raw atlas RGBA
+	// return vec4(glyph.a, glyph.a, glyph.a, 1.0);
+	// return vec4(glyph.r, glyph.g, glyph.b, 1.0);
+    // return fg;                 // raw fg color
+    // return bg;                 // raw bg color
+
+    return mix(bg, fg, glyph.a)   // normal mode
+}
